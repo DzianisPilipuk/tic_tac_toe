@@ -18,18 +18,31 @@ const gameboard = (() => {
   return { addElement, renderGameboard, getGameboardState };
 })();
 
+let players = [];
+
 const playerFactory = (team) => {
   const playerTeam = team;
   const makeMove = (cell) => {
     gameboard.addElement(playerTeam, cell);
   };
-  return { makeMove };
+  let returnObject = { makeMove };
+  players.push(returnObject);
+  return returnObject;
 };
 
 const player1 = playerFactory("X");
+const player2 = playerFactory("O");
 
 const gameController = (() => {
-  let currentplayer = player1;
+  let lastPlayer;
+  const currentplayer = () => {
+    if (lastPlayer === 1) {
+      lastPlayer = 0;
+      return players[0];
+    }
+    lastPlayer = 1;
+    return players[1];
+  };
   let gameIsFinished = false;
   const checkGameIsFinished = () => {
     const checkWinningPattern = (a, b, c) => {
@@ -56,7 +69,7 @@ const gameController = (() => {
     winningPatterns.forEach((pattern) => checkWinningPattern(...pattern));
   };
   const playRound = (cell) => {
-    currentplayer.makeMove(cell);
+    currentplayer().makeMove(cell);
     gameboard.renderGameboard();
     checkGameIsFinished();
   };
