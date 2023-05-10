@@ -32,16 +32,17 @@ const playerFactory = (team) => {
 
 const player1 = playerFactory("X");
 const player2 = playerFactory("O");
+const player3 = playerFactory("I");
 
 const gameController = (() => {
   let lastPlayer;
   const currentplayer = () => {
-    if (lastPlayer === 1) {
+    if (lastPlayer === players.length - 1 || lastPlayer === undefined) {
       lastPlayer = 0;
       return players[0];
     }
-    lastPlayer = 1;
-    return players[1];
+    lastPlayer += 1;
+    return players[lastPlayer];
   };
   let gameIsFinished = false;
   const checkGameIsFinished = () => {
@@ -69,9 +70,11 @@ const gameController = (() => {
     winningPatterns.forEach((pattern) => checkWinningPattern(...pattern));
   };
   const playRound = (cell) => {
-    currentplayer().makeMove(cell);
-    gameboard.renderGameboard();
-    checkGameIsFinished();
+    if (gameboard.getGameboardState()[cell] === undefined) {
+      currentplayer().makeMove(cell);
+      gameboard.renderGameboard();
+      checkGameIsFinished();
+    }
   };
   return { playRound };
 })();
