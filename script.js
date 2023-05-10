@@ -1,7 +1,7 @@
 const gameboard = (() => {
-  const gameboardState = [];
+  let gameboardState = [];
   const gameboardCells = document.getElementById("gameboard").children;
-  for (let i = 0; i < gameboardCells.length; i++) {
+  for (let i = 0; i < gameboardCells.length; i += 1) {
     gameboardCells[i].addEventListener("click", () => {
       gameController.playRound(i);
     });
@@ -14,25 +14,26 @@ const gameboard = (() => {
       gameboardCells[i].textContent = gameboardState[i];
     }
   };
-  const getGameboardState = () => [...gameboardState];
-  return { addElement, renderGameboard, getGameboardState };
+  const clearGameboard = () => {
+    gameboardState = [];
+  };
+  return { addElement, renderGameboard, gameboardState, clearGameboard };
 })();
 
-let players = [];
+const players = [];
 
 const playerFactory = (team) => {
   const playerTeam = team;
   const makeMove = (cell) => {
     gameboard.addElement(playerTeam, cell);
   };
-  let returnObject = { makeMove };
+  const returnObject = { makeMove };
   players.push(returnObject);
   return returnObject;
 };
 
-const player1 = playerFactory("X");
-const player2 = playerFactory("O");
-const player3 = playerFactory("I");
+playerFactory("X");
+playerFactory("O");
 
 const gameController = (() => {
   let lastPlayer;
@@ -44,19 +45,28 @@ const gameController = (() => {
     lastPlayer += 1;
     return players[lastPlayer];
   };
-  let gameIsFinished = false;
-  const checkGameIsFinished = () => {
-    const checkWinningPattern = (a, b, c) => {
-      const gameboardState = gameboard.getGameboardState();
+  function checkGameIsFinished() {
+    function declareGameFinish(statement) {
+      alert(statement);
+    }
+    function checkAllFieldsAreOccupied() {
+      let freeFieldsLeft = false;
+      for (let i = 0; i < 9; i += 1) {
+        if (gameboard.gameboardState[i] === undefined) freeFieldsLeft = true;
+      }
+      if (freeFieldsLeft) return false;
+      return true;
+    }
+    function checkWinningPattern(a, b, c) {
+      const { gameboardState } = gameboard;
       if (
         gameboardState[a] === gameboardState[b] &&
         gameboardState[a] === gameboardState[c] &&
         gameboardState[a] !== undefined
       ) {
-        console.log("gameover");
-        gameIsFinished = true;
+        declareGameFinish(`${gameboardState[a]} won`);
       }
-    };
+    }
     const winningPatterns = [
       [0, 1, 2],
       [3, 4, 5],
@@ -68,9 +78,10 @@ const gameController = (() => {
       [2, 4, 6],
     ];
     winningPatterns.forEach((pattern) => checkWinningPattern(...pattern));
-  };
+    if (checkAllFieldsAreOccupied()) declareGameFinish("it's a tie");
+  }
   const playRound = (cell) => {
-    if (gameboard.getGameboardState()[cell] === undefined) {
+    if (gameboard.gameboardState[cell] === undefined) {
       currentplayer().makeMove(cell);
       gameboard.renderGameboard();
       checkGameIsFinished();
