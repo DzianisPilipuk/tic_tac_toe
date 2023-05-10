@@ -1,6 +1,11 @@
 const gameboard = (() => {
   const gameboardState = [];
   const gameboardCells = document.getElementById("gameboard").children;
+  for (let i = 0; i < gameboardCells.length; i++) {
+    gameboardCells[i].addEventListener("click", () => {
+      gameController.playRound(i);
+    });
+  }
   const addElement = (element, cell) => {
     gameboardState[cell] = element;
   };
