@@ -37,6 +37,9 @@ playerFactory("O");
 
 const gameController = (() => {
   let lastPlayer;
+  let gameIsFinished = false;
+  let isTie;
+  let winner;
   const currentplayer = () => {
     if (lastPlayer === players.length - 1 || lastPlayer === undefined) {
       lastPlayer = 0;
@@ -45,28 +48,34 @@ const gameController = (() => {
     lastPlayer += 1;
     return players[lastPlayer];
   };
-  function checkGameIsFinished() {
-    function declareGameFinish(statement) {
-      alert(statement);
+  const declareGameFinish = () => {
+    gameIsFinished = true;
+    if (isTie) {
+      alert("it's a tie");
+    } else {
+      alert(`${winner} wins`);
     }
-    function checkAllFieldsAreOccupied() {
-      let freeFieldsLeft = false;
-      for (let i = 0; i < 9; i += 1) {
-        if (gameboard.gameboardState[i] === undefined) freeFieldsLeft = true;
-      }
-      if (freeFieldsLeft) return false;
-      return true;
+  };
+  const checkAllFieldsAreOccupied = () => {
+    let freeFieldsLeft = false;
+    for (let i = 0; i < 9; i += 1) {
+      if (gameboard.gameboardState[i] === undefined) freeFieldsLeft = true;
     }
-    function checkWinningPattern(a, b, c) {
-      const { gameboardState } = gameboard;
-      if (
-        gameboardState[a] === gameboardState[b] &&
-        gameboardState[a] === gameboardState[c] &&
-        gameboardState[a] !== undefined
-      ) {
-        declareGameFinish(`${gameboardState[a]} won`);
-      }
+    if (freeFieldsLeft) return false;
+    return true;
+  };
+  const checkWinningPattern = (a, b, c) => {
+    const { gameboardState } = gameboard;
+    if (
+      gameboardState[a] === gameboardState[b] &&
+      gameboardState[a] === gameboardState[c] &&
+      gameboardState[a] !== undefined
+    ) {
+      winner = gameboardState[a];
+      declareGameFinish();
     }
+  };
+  const checkGameIsFinished = () => {
     const winningPatterns = [
       [0, 1, 2],
       [3, 4, 5],
@@ -78,10 +87,16 @@ const gameController = (() => {
       [2, 4, 6],
     ];
     winningPatterns.forEach((pattern) => checkWinningPattern(...pattern));
-    if (checkAllFieldsAreOccupied()) declareGameFinish("it's a tie");
-  }
+    if (checkAllFieldsAreOccupied()) {
+      isTie = true;
+      declareGameFinish();
+    }
+  };
   const playRound = (cell) => {
-    if (gameboard.gameboardState[cell] === undefined) {
+    if (
+      gameboard.gameboardState[cell] === undefined &&
+      gameIsFinished === false
+    ) {
       currentplayer().makeMove(cell);
       gameboard.renderGameboard();
       checkGameIsFinished();
