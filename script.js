@@ -18,7 +18,8 @@ const gameboard = (() => {
   };
 
   const clearGameboard = () => {
-    gameboardState = [];
+    gameboardState.length = 0;
+    renderGameboard();
   };
 
   return { addElement, renderGameboard, gameboardState, clearGameboard };
@@ -118,5 +119,18 @@ const gameController = (() => {
     }
   };
 
-  return { playRound };
+  const reset = () => {
+    gameIsFinished = false;
+    lastPlayer = players.length - 1;
+    isTie = false;
+  };
+
+  return { playRound, reset };
 })();
+
+const restartButton = document.getElementById("restart_button");
+restartButton.addEventListener("click", () => {
+  gameController.reset();
+  gameboard.clearGameboard();
+  document.getElementById("game_over_screen").style.visibility = "hidden";
+});
