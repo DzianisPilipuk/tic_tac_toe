@@ -1,3 +1,18 @@
+:root {
+  --base-color: #cfcfcf;
+  --white: #ffffff;
+}
+
+.content-wrapper {
+  background-color: var(--base-color);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 400px;
+  height: 400px;
+}
+
 .gameboard {
   width: 300px;
   height: 300px;
@@ -13,4 +28,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.game-over-screen {
+  position: absolute;
+  background-color: var(--white);
+  border-radius: 20px;
+  width: 250px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
 }

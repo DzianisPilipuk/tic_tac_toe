@@ -6,17 +6,21 @@ const gameboard = (() => {
       gameController.playRound(i);
     });
   }
+
   const addElement = (element, cell) => {
     gameboardState[cell] = element;
   };
+
   const renderGameboard = () => {
     for (let i = 0; i < 9; i += 1) {
       gameboardCells[i].textContent = gameboardState[i];
     }
   };
+
   const clearGameboard = () => {
     gameboardState = [];
   };
+
   return { addElement, renderGameboard, gameboardState, clearGameboard };
 })();
 
@@ -40,6 +44,7 @@ const gameController = (() => {
   let gameIsFinished = false;
   let isTie;
   let winner;
+
   const currentplayer = () => {
     if (lastPlayer === players.length - 1 || lastPlayer === undefined) {
       lastPlayer = 0;
@@ -48,14 +53,21 @@ const gameController = (() => {
     lastPlayer += 1;
     return players[lastPlayer];
   };
+
   const declareGameFinish = () => {
+    const gameOverScreen = document.getElementById("game_over_screen");
+    const gameResultDisplay = document.getElementById("game_result_display");
+    let gameResult;
     gameIsFinished = true;
     if (isTie) {
-      alert("it's a tie");
+      gameResult = "it's a tie";
     } else {
-      alert(`${winner} wins`);
+      gameResult = `${winner} wins`;
     }
+    gameOverScreen.style.visibility = "visible";
+    gameResultDisplay.textContent = gameResult;
   };
+
   const checkAllFieldsAreOccupied = () => {
     let freeFieldsLeft = false;
     for (let i = 0; i < 9; i += 1) {
@@ -64,6 +76,7 @@ const gameController = (() => {
     if (freeFieldsLeft) return false;
     return true;
   };
+
   const checkWinningPattern = (a, b, c) => {
     const { gameboardState } = gameboard;
     if (
@@ -75,6 +88,7 @@ const gameController = (() => {
       declareGameFinish();
     }
   };
+
   const checkGameIsFinished = () => {
     const winningPatterns = [
       [0, 1, 2],
@@ -92,6 +106,7 @@ const gameController = (() => {
       declareGameFinish();
     }
   };
+
   const playRound = (cell) => {
     if (
       gameboard.gameboardState[cell] === undefined &&
@@ -102,5 +117,6 @@ const gameController = (() => {
       checkGameIsFinished();
     }
   };
+
   return { playRound };
 })();
