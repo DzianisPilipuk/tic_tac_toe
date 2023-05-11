@@ -1,5 +1,5 @@
 const gameboard = (() => {
-  let gameboardState = [];
+  const gameboardState = [];
   const gameboardCells = document.getElementById("gameboard").children;
   for (let i = 0; i < gameboardCells.length; i += 1) {
     gameboardCells[i].addEventListener("click", () => {
@@ -42,7 +42,7 @@ playerFactory("O");
 
 const gameController = (() => {
   let lastPlayer;
-  let gameIsFinished = false;
+  let boardIsLocked = true;
   let isTie;
   let winner;
 
@@ -59,7 +59,7 @@ const gameController = (() => {
     const gameOverScreen = document.getElementById("game_over_screen");
     const gameResultDisplay = document.getElementById("game_result_display");
     let gameResult;
-    gameIsFinished = true;
+    boardIsLocked = true;
     if (isTie) {
       gameResult = "it's a tie";
     } else {
@@ -111,7 +111,7 @@ const gameController = (() => {
   const playRound = (cell) => {
     if (
       gameboard.gameboardState[cell] === undefined &&
-      gameIsFinished === false
+      boardIsLocked === false
     ) {
       currentplayer().makeMove(cell);
       gameboard.renderGameboard();
@@ -120,13 +120,23 @@ const gameController = (() => {
   };
 
   const reset = () => {
-    gameIsFinished = false;
+    boardIsLocked = false;
     lastPlayer = players.length - 1;
     isTie = false;
   };
 
-  return { playRound, reset };
+  const unlockGameboard = () => {
+    boardIsLocked = false;
+  };
+
+  return { playRound, reset, unlockGameboard };
 })();
+
+const startButton = document.getElementById("start_button");
+startButton.addEventListener("click", () => {
+  document.getElementById("start_game_screen").style.visibility = "hidden";
+  gameController.unlockGameboard();
+});
 
 const restartButton = document.getElementById("restart_button");
 restartButton.addEventListener("click", () => {

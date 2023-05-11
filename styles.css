@@ -13,6 +13,19 @@
   height: 400px;
 }
 
+.start-game-screen {
+  position: absolute;
+  background-color: var(--white);
+  border-radius: 20px;
+  width: 250px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: visible;
+}
+
 .gameboard {
   width: 300px;
   height: 300px;
