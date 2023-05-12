@@ -148,8 +148,8 @@ const gameController = (() => {
   };
 
   const startGame = () => {
-    playerXIsHuman = document.getElementById("player_X_isHuman").checked;
-    playerOIsHuman = document.getElementById("player_O_isHuman").checked;
+    const playerXIsHuman = document.getElementById("player_X_isHuman").checked;
+    const playerOIsHuman = document.getElementById("player_O_isHuman").checked;
 
     playerFactory("X", playerXIsHuman);
     playerFactory("O", playerOIsHuman);
