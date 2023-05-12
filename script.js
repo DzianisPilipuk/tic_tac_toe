@@ -28,26 +28,29 @@ const gameboard = (() => {
 
 const players = [];
 
-const primitiveAI = () => {
-  let AIchoice;
-  do {
-    AIchoice = Math.floor(Math.random() * 9);
-  } while (gameboard.gameboardState[AIchoice] !== undefined);
-  gameController.playRound(AIchoice);
-};
-
 const playerFactory = (team, isHuman = true) => {
   const returnObject = { team, isHuman };
   players.push(returnObject);
   return returnObject;
 };
 
+const primitiveAI = () => {
+  gameController.lockGameboard();
+  const delay = 200;
+  let AIchoice;
+  do {
+    AIchoice = Math.floor(Math.random() * 9);
+  } while (gameboard.gameboardState[AIchoice] !== undefined);
+  setTimeout(() => {
+    gameController.unlockGameboard();
+    gameController.playRound(AIchoice);
+  }, delay);
+};
+
 const gameController = (() => {
   let boardIsLocked = true;
   let isTie;
   let winner;
-  playerFactory("X");
-  playerFactory("O", false);
 
   let currentPlayerIndex = 0;
 
@@ -140,13 +143,30 @@ const gameController = (() => {
     boardIsLocked = false;
   };
 
-  return { playRound, reset, unlockGameboard };
+  const lockGameboard = () => {
+    boardIsLocked = true;
+  };
+
+  const startGame = () => {
+    playerXIsHuman = document.getElementById("player_X_isHuman").checked;
+    playerOIsHuman = document.getElementById("player_O_isHuman").checked;
+
+    playerFactory("X", playerXIsHuman);
+    playerFactory("O", playerOIsHuman);
+
+    if (playerXIsHuman === false) {
+      primitiveAI();
+    }
+  };
+
+  return { playRound, reset, unlockGameboard, lockGameboard, startGame };
 })();
 
 const startButton = document.getElementById("start_button");
 startButton.addEventListener("click", () => {
   document.getElementById("start_game_screen").style.visibility = "hidden";
   gameController.unlockGameboard();
+  gameController.startGame();
 });
 
 const restartButton = document.getElementById("restart_button");
@@ -154,4 +174,5 @@ restartButton.addEventListener("click", () => {
   gameController.reset();
   gameboard.clearGameboard();
   document.getElementById("game_over_screen").style.visibility = "hidden";
+  gameController.startGame();
 });
