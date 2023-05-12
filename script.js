@@ -27,32 +27,29 @@ const gameboard = (() => {
 
 const players = [];
 
-const playerFactory = (team) => {
+const playerFactory = (team, isHuman) => {
+  const playerIsHuman = isHuman;
   const playerTeam = team;
-  const makeMove = (cell) => {
-    gameboard.addElement(playerTeam, cell);
-  };
-  const returnObject = { makeMove };
+  const returnObject = { playerTeam, playerIsHuman };
   players.push(returnObject);
   return returnObject;
 };
 
-playerFactory("X");
-playerFactory("O");
-
 const gameController = (() => {
-  let lastPlayer;
   let boardIsLocked = true;
   let isTie;
   let winner;
+  playerFactory("X");
+  playerFactory("O");
 
-  const currentplayer = () => {
-    if (lastPlayer === players.length - 1 || lastPlayer === undefined) {
-      lastPlayer = 0;
-      return players[0];
+  let currentPlayerIndex = 0;
+
+  const passTurn = () => {
+    if (currentPlayerIndex === players.length - 1) {
+      currentPlayerIndex = 0;
+    } else {
+      currentPlayerIndex += 1;
     }
-    lastPlayer += 1;
-    return players[lastPlayer];
   };
 
   const declareGameFinish = () => {
@@ -113,15 +110,16 @@ const gameController = (() => {
       gameboard.gameboardState[cell] === undefined &&
       boardIsLocked === false
     ) {
-      currentplayer().makeMove(cell);
+      gameboard.addElement(players[currentPlayerIndex].playerTeam, cell);
       gameboard.renderGameboard();
       checkGameIsFinished();
+      passTurn();
     }
   };
 
   const reset = () => {
     boardIsLocked = false;
-    lastPlayer = players.length - 1;
+    currentPlayerIndex = 0;
     isTie = false;
   };
 
