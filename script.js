@@ -1,6 +1,7 @@
 const gameboard = (() => {
   const gameboardState = [];
   const gameboardCells = document.getElementById("gameboard").children;
+
   for (let i = 0; i < gameboardCells.length; i += 1) {
     gameboardCells[i].addEventListener("click", () => {
       gameController.playRound(i);
@@ -27,10 +28,16 @@ const gameboard = (() => {
 
 const players = [];
 
-const playerFactory = (team, isHuman) => {
-  const playerIsHuman = isHuman;
-  const playerTeam = team;
-  const returnObject = { playerTeam, playerIsHuman };
+const primitiveAI = () => {
+  let AIchoice;
+  do {
+    AIchoice = Math.floor(Math.random() * 9);
+  } while (gameboard.gameboardState[AIchoice] !== undefined);
+  gameController.playRound(AIchoice);
+};
+
+const playerFactory = (team, isHuman = true) => {
+  const returnObject = { team, isHuman };
   players.push(returnObject);
   return returnObject;
 };
@@ -40,7 +47,7 @@ const gameController = (() => {
   let isTie;
   let winner;
   playerFactory("X");
-  playerFactory("O");
+  playerFactory("O", false);
 
   let currentPlayerIndex = 0;
 
@@ -49,6 +56,9 @@ const gameController = (() => {
       currentPlayerIndex = 0;
     } else {
       currentPlayerIndex += 1;
+    }
+    if (players[currentPlayerIndex].isHuman !== true) {
+      primitiveAI();
     }
   };
 
@@ -110,10 +120,12 @@ const gameController = (() => {
       gameboard.gameboardState[cell] === undefined &&
       boardIsLocked === false
     ) {
-      gameboard.addElement(players[currentPlayerIndex].playerTeam, cell);
+      gameboard.addElement(players[currentPlayerIndex].team, cell);
       gameboard.renderGameboard();
       checkGameIsFinished();
-      passTurn();
+      if (!isTie && !winner) {
+        passTurn();
+      }
     }
   };
 
@@ -121,6 +133,7 @@ const gameController = (() => {
     boardIsLocked = false;
     currentPlayerIndex = 0;
     isTie = false;
+    winner = false;
   };
 
   const unlockGameboard = () => {
