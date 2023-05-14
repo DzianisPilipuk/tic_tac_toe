@@ -26,26 +26,18 @@ const gameboard = (() => {
   return { addElement, renderGameboard, gameboardState, clearGameboard };
 })();
 
-const players = [];
-
-const playerFactory = (team, isHuman = true) => {
-  const returnObject = { team, isHuman };
-  players.push(returnObject);
-  return returnObject;
-};
-
-const primitiveAI = () => {
-  gameController.lockGameboard();
-  const delay = 200;
-  let AIchoice;
-  do {
-    AIchoice = Math.floor(Math.random() * 9);
-  } while (gameboard.gameboardState[AIchoice] !== undefined);
-  setTimeout(() => {
-    gameController.unlockGameboard();
-    gameController.playRound(AIchoice);
-  }, delay);
-};
+// const primitiveAI = () => {
+//   gameController.lockGameboard();
+//   const delay = 200;
+//   let AIchoice;
+//   do {
+//     AIchoice = Math.floor(Math.random() * 9);
+//   } while (gameboard.gameboardState[AIchoice] !== undefined);
+//   setTimeout(() => {
+//     gameController.unlockGameboard();
+//     gameController.playRound(AIchoice);
+//   }, delay);
+// };
 
 const minimax = (currentGameboardState, team) => {
   const posibleMoves = [];
@@ -96,11 +88,36 @@ const minimax = (currentGameboardState, team) => {
   return bestMove;
 };
 
+const AI = () => {
+  gameController.lockGameboard();
+  const delay = 200;
+  const AIchoice = minimax(
+    gameboard.gameboardState,
+    gameController.getCurrentPlayerTeam()
+  ).index;
+  // do {
+  //   AIchoice = Math.floor(Math.random() * 9);
+  // } while (gameboard.gameboardState[AIchoice] !== undefined);
+  setTimeout(() => {
+    gameController.unlockGameboard();
+    gameController.playRound(AIchoice);
+  }, delay);
+};
+
 const gameController = (() => {
   let boardIsLocked = true;
   let stateParameters;
-
   let currentPlayerIndex = 0;
+
+  const players = [];
+
+  const playerFactory = (team, isHuman = true) => {
+    const returnObject = { team, isHuman };
+    players.push(returnObject);
+    return returnObject;
+  };
+
+  const getCurrentPlayerTeam = () => players[currentPlayerIndex].team;
 
   const passTurn = () => {
     if (currentPlayerIndex === players.length - 1) {
@@ -109,7 +126,7 @@ const gameController = (() => {
       currentPlayerIndex += 1;
     }
     if (players[currentPlayerIndex].isHuman !== true) {
-      primitiveAI();
+      AI();
     }
   };
 
@@ -205,7 +222,7 @@ const gameController = (() => {
     playerFactory("O", playerOIsHuman);
 
     if (playerXIsHuman === false) {
-      primitiveAI();
+      AI();
     }
   };
 
@@ -216,6 +233,7 @@ const gameController = (() => {
     lockGameboard,
     startGame,
     checkTerminalState,
+    getCurrentPlayerTeam,
   };
 })();
 
