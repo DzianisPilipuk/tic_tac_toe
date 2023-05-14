@@ -47,10 +47,56 @@ const primitiveAI = () => {
   }, delay);
 };
 
+const minimax = (currentGameboardState, team) => {
+  const posibleMoves = [];
+  const availableFields = [];
+  for (let i = 0; i < 9; i += 1) {
+    if (currentGameboardState[i] === undefined) {
+      availableFields.push(i);
+    }
+  }
+  for (let i = 0; i < availableFields.length; i += 1) {
+    const currentMove = {};
+    currentMove.index = availableFields[i];
+    currentGameboardState[availableFields[i]] = team;
+    const gameboardStateParameters = gameController.checkTerminalState(
+      currentGameboardState
+    );
+    if (gameboardStateParameters.winner === "X") currentMove.result = 1;
+    if (gameboardStateParameters.winner === "O") currentMove.result = -1;
+    if (gameboardStateParameters.isTie) currentMove.result = 0;
+    if (currentMove.result === undefined) {
+      let opponent = "X";
+      if (team === "X") opponent = "O";
+      currentMove.result = minimax(currentGameboardState, opponent).result;
+    }
+    currentGameboardState[availableFields[i]] = undefined;
+    posibleMoves.push(currentMove);
+  }
+  console.log(posibleMoves);
+  let bestMove;
+  for (let i = 0; i < posibleMoves.length; i += 1) {
+    if (
+      (team === "X" && posibleMoves[i].result > bestMove?.result) ||
+      bestMove === undefined
+    ) {
+      bestMove = posibleMoves[i];
+    }
+    if (
+      (team === "O" && posibleMoves[i].result < bestMove?.result) ||
+      bestMove === undefined
+    ) {
+      bestMove = posibleMoves[i];
+    }
+  }
+  return bestMove;
+};
+
 const gameController = (() => {
   let boardIsLocked = true;
-  let isTie;
-  let winner;
+  let stateParameters;
+  // let isTie;
+  // let winner;
 
   let currentPlayerIndex = 0;
 
@@ -68,39 +114,34 @@ const gameController = (() => {
   const declareGameFinish = () => {
     const gameOverScreen = document.getElementById("game_over_screen");
     const gameResultDisplay = document.getElementById("game_result_display");
-    let gameResult;
+    let gameResult = `${stateParameters.winner} wins`;
     boardIsLocked = true;
-    if (isTie) {
-      gameResult = "it's a tie";
-    } else {
-      gameResult = `${winner} wins`;
-    }
+    if (stateParameters.isTie) gameResult = "it's a tie";
     gameOverScreen.style.visibility = "visible";
     gameResultDisplay.textContent = gameResult;
   };
 
-  const checkAllFieldsAreOccupied = () => {
-    let freeFieldsLeft = false;
+  const checkAllFieldsAreOccupied = (gameboardState) => {
     for (let i = 0; i < 9; i += 1) {
-      if (gameboard.gameboardState[i] === undefined) freeFieldsLeft = true;
+      if (gameboardState[i] === undefined) return false;
     }
-    if (freeFieldsLeft) return false;
     return true;
   };
 
-  const checkWinningPattern = (a, b, c) => {
-    const { gameboardState } = gameboard;
+  const checkWinningPattern = (gameboardState, a, b, c) => {
     if (
       gameboardState[a] === gameboardState[b] &&
       gameboardState[a] === gameboardState[c] &&
       gameboardState[a] !== undefined
     ) {
-      winner = gameboardState[a];
-      declareGameFinish();
+      return gameboardState[a];
     }
+    return false;
   };
 
-  const checkGameIsFinished = () => {
+  const checkTerminalState = (gameboardState) => {
+    const stateParameters = {};
+    stateParameters.isTie = checkAllFieldsAreOccupied(gameboardState);
     const winningPatterns = [
       [0, 1, 2],
       [3, 4, 5],
@@ -111,11 +152,16 @@ const gameController = (() => {
       [0, 4, 8],
       [2, 4, 6],
     ];
-    winningPatterns.forEach((pattern) => checkWinningPattern(...pattern));
-    if (checkAllFieldsAreOccupied()) {
-      isTie = true;
-      declareGameFinish();
+    for (let i = 0; i < winningPatterns.length; i += 1) {
+      const tmp = checkWinningPattern(gameboardState, ...winningPatterns[i]);
+      if (tmp) stateParameters.winner = tmp;
     }
+    return stateParameters;
+  };
+
+  const checkGameIsFinished = (gameboardState) => {
+    stateParameters = checkTerminalState(gameboardState);
+    if (stateParameters.isTie || stateParameters.winner) declareGameFinish();
   };
 
   const playRound = (cell) => {
@@ -125,8 +171,8 @@ const gameController = (() => {
     ) {
       gameboard.addElement(players[currentPlayerIndex].team, cell);
       gameboard.renderGameboard();
-      checkGameIsFinished();
-      if (!isTie && !winner) {
+      checkGameIsFinished(gameboard.gameboardState);
+      if (!stateParameters.isTie && !stateParameters.winner) {
         passTurn();
       }
     }
@@ -135,8 +181,7 @@ const gameController = (() => {
   const reset = () => {
     boardIsLocked = false;
     currentPlayerIndex = 0;
-    isTie = false;
-    winner = false;
+    stateParameters = {};
   };
 
   const unlockGameboard = () => {
@@ -159,7 +204,14 @@ const gameController = (() => {
     }
   };
 
-  return { playRound, reset, unlockGameboard, lockGameboard, startGame };
+  return {
+    playRound,
+    reset,
+    unlockGameboard,
+    lockGameboard,
+    startGame,
+    checkTerminalState,
+  };
 })();
 
 const startButton = document.getElementById("start_button");
@@ -176,3 +228,6 @@ restartButton.addEventListener("click", () => {
   document.getElementById("game_over_screen").style.visibility = "hidden";
   gameController.startGame();
 });
+
+// const example = ["X"];
+// console.log(minimax(example, "O"));
