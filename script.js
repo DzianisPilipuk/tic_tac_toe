@@ -88,16 +88,24 @@ const minimax = (currentGameboardState, team) => {
   return bestMove;
 };
 
-const AI = () => {
+const AI = (intelligence = 50) => {
+  let isSmart = false;
+  if (intelligence > Math.floor(Math.random() * 100)) isSmart = true;
+  console.log(isSmart);
   gameController.lockGameboard();
   const delay = 200;
-  const AIchoice = minimax(
-    gameboard.gameboardState,
-    gameController.getCurrentPlayerTeam()
-  ).index;
-  // do {
-  //   AIchoice = Math.floor(Math.random() * 9);
-  // } while (gameboard.gameboardState[AIchoice] !== undefined);
+  let AIchoice;
+  if (isSmart) {
+    AIchoice = minimax(
+      gameboard.gameboardState,
+      gameController.getCurrentPlayerTeam()
+    ).index;
+  }
+  if (!isSmart) {
+    do {
+      AIchoice = Math.floor(Math.random() * 9);
+    } while (gameboard.gameboardState[AIchoice] !== undefined);
+  }
   setTimeout(() => {
     gameController.unlockGameboard();
     gameController.playRound(AIchoice);
