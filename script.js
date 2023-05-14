@@ -219,7 +219,7 @@ const gameController = (() => {
     playerFactory("O", playerOIsHuman);
 
     if (playerXIsHuman === false) {
-      AI();
+      AI(AIIntelligence);
     }
   };
 
