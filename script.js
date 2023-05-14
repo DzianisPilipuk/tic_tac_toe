@@ -26,19 +26,6 @@ const gameboard = (() => {
   return { addElement, renderGameboard, gameboardState, clearGameboard };
 })();
 
-// const primitiveAI = () => {
-//   gameController.lockGameboard();
-//   const delay = 200;
-//   let AIchoice;
-//   do {
-//     AIchoice = Math.floor(Math.random() * 9);
-//   } while (gameboard.gameboardState[AIchoice] !== undefined);
-//   setTimeout(() => {
-//     gameController.unlockGameboard();
-//     gameController.playRound(AIchoice);
-//   }, delay);
-// };
-
 const minimax = (currentGameboardState, team) => {
   const posibleMoves = [];
   const availableFields = [];
@@ -88,7 +75,7 @@ const minimax = (currentGameboardState, team) => {
   return bestMove;
 };
 
-const AI = (intelligence = 50) => {
+const AI = (intelligence) => {
   let isSmart = false;
   if (intelligence > Math.floor(Math.random() * 100)) isSmart = true;
   console.log(isSmart);
@@ -116,6 +103,7 @@ const gameController = (() => {
   let boardIsLocked = true;
   let stateParameters;
   let currentPlayerIndex = 0;
+  let AIIntelligence;
 
   const players = [];
 
@@ -134,7 +122,7 @@ const gameController = (() => {
       currentPlayerIndex += 1;
     }
     if (players[currentPlayerIndex].isHuman !== true) {
-      AI();
+      AI(AIIntelligence);
     }
   };
 
@@ -225,6 +213,7 @@ const gameController = (() => {
   const startGame = () => {
     const playerXIsHuman = document.getElementById("player_X_isHuman").checked;
     const playerOIsHuman = document.getElementById("player_O_isHuman").checked;
+    AIIntelligence = document.getElementById("AI_intelligence").value;
 
     playerFactory("X", playerXIsHuman);
     playerFactory("O", playerOIsHuman);
