@@ -72,8 +72,12 @@ const minimax = (currentGameboardState, team) => {
     }
     currentGameboardState[availableFields[i]] = undefined;
     posibleMoves.push(currentMove);
+    if (
+      (team === "X" && currentMove.result === 1) ||
+      (team === "O" && currentMove.result === -1)
+    )
+      break;
   }
-  console.log(posibleMoves);
   let bestMove;
   for (let i = 0; i < posibleMoves.length; i += 1) {
     if (
@@ -95,8 +99,6 @@ const minimax = (currentGameboardState, team) => {
 const gameController = (() => {
   let boardIsLocked = true;
   let stateParameters;
-  // let isTie;
-  // let winner;
 
   let currentPlayerIndex = 0;
 
@@ -141,7 +143,6 @@ const gameController = (() => {
 
   const checkTerminalState = (gameboardState) => {
     const stateParameters = {};
-    stateParameters.isTie = checkAllFieldsAreOccupied(gameboardState);
     const winningPatterns = [
       [0, 1, 2],
       [3, 4, 5],
@@ -154,8 +155,12 @@ const gameController = (() => {
     ];
     for (let i = 0; i < winningPatterns.length; i += 1) {
       const tmp = checkWinningPattern(gameboardState, ...winningPatterns[i]);
-      if (tmp) stateParameters.winner = tmp;
+      if (tmp) {
+        stateParameters.winner = tmp;
+        return stateParameters;
+      }
     }
+    stateParameters.isTie = checkAllFieldsAreOccupied(gameboardState);
     return stateParameters;
   };
 
@@ -228,6 +233,3 @@ restartButton.addEventListener("click", () => {
   document.getElementById("game_over_screen").style.visibility = "hidden";
   gameController.startGame();
 });
-
-// const example = ["X"];
-// console.log(minimax(example, "O"));
