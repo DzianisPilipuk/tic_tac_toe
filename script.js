@@ -26,7 +26,7 @@ const gameboard = (() => {
   return { addElement, renderGameboard, gameboardState, clearGameboard };
 })();
 
-const minimax = (currentGameboardState, team) => {
+const getMinimaxChoice = (currentGameboardState, team) => {
   const posibleMoves = [];
   const availableFields = [];
   for (let i = 0; i < 9; i += 1) {
@@ -47,7 +47,10 @@ const minimax = (currentGameboardState, team) => {
     if (currentMove.result === undefined) {
       let opponent = "X";
       if (team === "X") opponent = "O";
-      currentMove.result = minimax(currentGameboardState, opponent).result;
+      currentMove.result = getMinimaxChoice(
+        currentGameboardState,
+        opponent
+      ).result;
     }
     currentGameboardState[availableFields[i]] = undefined;
     posibleMoves.push(currentMove);
@@ -75,15 +78,14 @@ const minimax = (currentGameboardState, team) => {
   return bestMove;
 };
 
-const AI = (intelligence) => {
+const playAI = (intelligence) => {
   let isSmart = false;
   if (intelligence > Math.floor(Math.random() * 100)) isSmart = true;
-  console.log(isSmart);
   gameController.lockGameboard();
   const delay = 200;
   let AIchoice;
   if (isSmart) {
-    AIchoice = minimax(
+    AIchoice = getMinimaxChoice(
       gameboard.gameboardState,
       gameController.getCurrentPlayerTeam()
     ).index;
@@ -122,7 +124,7 @@ const gameController = (() => {
       currentPlayerIndex += 1;
     }
     if (players[currentPlayerIndex].isHuman !== true) {
-      AI(AIIntelligence);
+      playAI(AIIntelligence);
     }
   };
 
@@ -219,7 +221,7 @@ const gameController = (() => {
     playerFactory("O", playerOIsHuman);
 
     if (playerXIsHuman === false) {
-      AI(AIIntelligence);
+      playAI(AIIntelligence);
     }
   };
 
